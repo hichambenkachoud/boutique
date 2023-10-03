@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Dto\SearchProduct;
 use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -39,20 +40,29 @@ class ProductRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return Product[] Returns an array of Product objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('p.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * @return Product[] Returns an array of Product objects
+     */
+    public function findWithFilters(SearchProduct $searchProduct): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('c', 'p')
+            ->join('p.category', 'c');
+
+        if (!empty($searchProduct->keyWord)) {
+            $qb->andWhere('p.description LIKE :val1 OR p.description LIKE :val2')
+                ->setParameter('val1', $searchProduct->keyWord)
+                ->setParameter('val2', $searchProduct->keyWord);
+        }
+
+        if (!empty($searchProduct->categories)) {
+            $qb->andWhere('p.id IN (:ids)')
+                ->setParameter('ids', $searchProduct->categories);
+        }
+
+        return $qb->getQuery()
+            ->getResult();
+    }
 
 //    public function findOneBySomeField($value): ?Product
 //    {
