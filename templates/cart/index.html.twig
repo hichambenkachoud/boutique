@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon panier - La boutique francaise{% endblock %}
+
+{% block content %}
+    <h1>Mon panier</h1>
+    <span>Retrouvez l'ensemble des produits que vous avez mis dans votre panier</span>
+    <hr>
+
+    {% if cart | length > 0 %}
+        <h1>La liste</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <td scope="col">Produit</td>
+            <td></td>
+            <td scope="col">Quantite</td>
+            <td scope="col">Prix</td>
+            <td scope="col">Total</td>
+            <td scope="col"></td>
+        </tr>
+        </thead>
+        <tbody>
+        {% set total = 0 %}
+        {% for o in cart %}
+            <tr>
+                <td>
+                    <img src="/uploads/{{ o.product.image }}" class="product-image" height="75px"></td>
+                <td>
+                    {{ o.product.name }}
+                </td>
+                <td>
+                    <a href="{{ path('app_decrease_cart', {id: o.product.id}) }}">
+                        <img src="{{ asset('assets/img/minus.png') }}" alt="Retirer" height="18px"/>
+                    </a>
+                        x {{ o.quantity }}
+                    <a href="{{ path('app_add_cart', {id: o.product.id}) }}">
+                        <img src="{{ asset('assets/img/plus.png') }}" alt="Ajouter" height="18px"/>
+                    </a>
+                </td>
+                <td>{{ (o.product.price / 100) | number_format(2, ',', '.') }} $</td>
+                <td>{{ ((o.quantity * o.product.price) / 100) | number_format(2, ',', '.') }} $</td>
+                <td>
+                    <a href="{{ path('app_delete_cart', {id: o.product.id}) }}"><img src="{{ asset('assets/img/trash.png') }}" alt="supprimer" height="18px"/> </a>
+                </td>
+            </tr>
+            {% set total = total + o.quantity * o.product.price %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="text-reset mb-5">
+        <b>Nombre de produit: {{ cart | length }}</b> <br>
+        <b>Total: {{ (total / 100) | number_format(2, ',', '.') }} $</b>
+        <a href="" class="btn btn-success btn-block mt-3 ">Payer</a>
+    </div>
+
+    {% else %}
+        <p>Votre panier est vide</p>
+    {% endif %}
+{% endblock %}
